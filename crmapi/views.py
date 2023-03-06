@@ -13,22 +13,24 @@ def get_crm(request):
     customerid = request.headers.get("customerid")
     
     # for the customer id get the auth object from the database
-    auth = Auth.objects.get(customer_id=customerid)
-    
-    # get the platform type from the auth object
-    platform_type = auth.platform_type
-    
-    # get the platform object from the platform type
-    crm = create_platform(platform_type, auth)
-    
-    return crm
-
+    try:
+      auth = Auth.objects.get(customer_id=customerid)
+      # get the platform type from the auth object
+      platform_type = auth.platform_type
+      # get the platform object from the platform type
+      crm = create_platform(platform_type, auth)
+      
+      return crm
+    except Auth.DoesNotExist:
+        return None
 # 2 paths to service according to our spec.
 # /leads/ 
 def lead_list(request):
     if request.method == "GET":
         # get the crm object
         crm = get_crm(request)
+        if crm is None:
+            return JsonResponse({"error":"Incorrect platform type or customer ID"}, status=400)
         
         # get the leads from the platform object
         leads = crm.get_leads()
@@ -63,12 +65,14 @@ def lead_list(request):
 def lead_detail(request, id):
     if request.method == "GET":
       crm = get_crm(request)
-
-      # get id from request
-      id = request.GET.get("id")
       
+      if crm is None:
+        return JsonResponse({"error":"Incorrect platform type or customer ID"}, status=400)
       # get the lead from the platform object
       lead = crm.get_lead(id)
+      if lead is None:
+        print("Lead not found with ID: ", id)
+        return JsonResponse({"error":"Lead not found with the ID"}, status=404)
       
       # return 200 with the lead
-      return JsonResponse(lead.__dict__, status=200)
+      return JsonResponse(lead.to_dict(), status=200)

@@ -20,5 +20,8 @@ class Lead:
         self.leadsource = leadsource
 
     def __str__(self):
-        return json.dumps(self.__dict__)
+        return json.dumps(self.to_dict())
+    
+    def to_dict(self):
+        return {"id": self.id, "properties": self.properties, "archived": self.archived, "title": self.title, "owner": self.owner, "leadsource": self.leadsource}
     
