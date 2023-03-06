@@ -1,4 +1,9 @@
+from platform import platform
+from pydoc import plain
+from wsgiref import validate
 from django.db import models
+
+from crm_platforms.factory import create_platform
 
 # Create your models here.
 
@@ -27,4 +32,19 @@ class Auth(models.Model):
       
     def validate(self):
         # validate the connection by making a request to the platform
-        pass
+        platform = create_platform(self.platform_type, self)
+        if platform.authenticate():
+          return True
+        else:
+          return False
+        
+    # before saving the object, validate the connection
+    def save(self, *args, **kwargs):
+        validated = self.validate()
+        # if the connection is validated, save the object
+        if validated:
+          # call the parent save method
+          super(Auth, self).save(*args, **kwargs)
+        else:
+          # throw an error that auth is not validated
+          return "Authentication failed"

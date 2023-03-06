@@ -3,7 +3,7 @@ from .leads import Lead
 
 class Hubspot(Platform):
   
-  def authenticate(self, auth):
+  def authenticate(self):
     pass
   
   def get_leads(self):

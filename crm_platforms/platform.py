@@ -1,16 +1,16 @@
 class Platform:
     def __init__(self, platform_type, auth):
       self.platform_type = platform_type
-      self.authenticate(auth)
+      self.auth = auth
       
-    def authenticate(self, auth):
-      pass
+    def authenticate(self):
+      raise("Not implemented")
     
     def get_leads(self):
-      pass
+      raise("Not implemented")
     
     def get_lead(self, id):
-      pass
+      raise("Not implemented")
     
     def create_lead(self, lead):
-      pass
+      raise("Not implemented")
