@@ -7,8 +7,17 @@ HubspotURL = "https://api.hubapi.com/crm/v3/objects/"
 class Hubspot(Platform):
   
   def authenticate(self):
-    self.auth.access_token = "pat-na1-d016f754-2577-4c2f-aa42-ccd1f837bd9f"
-  
+    access_token = self.auth.access_token
+    print("ACCESS_TOKEN ", access_token)
+    url = HubspotURL + "companies/"
+    response = requests.get(url, headers={"Authorization": "Bearer " + self.auth.access_token})
+    # check if the response is 200
+    if response.status_code == 200:
+      return True
+    else:
+      print("Authentication failed", response.status_code)
+      return False
+
   def get_leads(self):
     pass
   
@@ -25,7 +34,8 @@ class Hubspot(Platform):
     if response.status_code == 200:
       json_response = response.json()
       # check success parameter of response 
-      success = json_response["success"]
+      print("json_response: ", json_response)
+      success = json_response["id"]
       if success:
         # get the lead from the response
         lead = self.get_lead_from_response(json_response)
@@ -36,14 +46,14 @@ class Hubspot(Platform):
 
   def get_lead_from_response(self, response):
     # extract all the attributes from the response
-    title = response["results"]["properties"]["jobtitle"]
-    owner = response["results"]["properties"]["hubspot_owner_id"]
+    title = response["properties"]["jobtitle"]
+    owner = response["properties"]["hs_object_id"]
     leadsource = "" #response["results"]["properties"]["source_name"]
-    id = response["results"]["id"]
-    archived = response["results"]["archived"]
-    createdate = response["results"]["createdAt"]
-    email = response["results"]["properties"]["email"]
-    lastmodifieddate  = response["results"]["properties"]["lastmodifieddate"]
+    id = response["id"]
+    archived = response["archived"]
+    createdate = response["createdAt"]
+    email = response["properties"]["email"]
+    lastmodifieddate  = response["properties"]["lastmodifieddate"]
     firstname = "" #response["data"]["first_name"]
     lastname = "" #response["data"]["last_name"]
     
